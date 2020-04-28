@@ -1,5 +1,6 @@
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
+import jade.core.behaviours.CyclicBehaviour;
 import jade.core.behaviours.OneShotBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
@@ -35,8 +36,9 @@ public class CompradorAgent extends Agent{
         myGui = new CompradorAgentGui(this);
         myGui.setVisible(true);
 
-        //Registramos al comprador en el servcio de páginas amarillas.
-        //Luego abrá que modificarlo para una subasta particular cuando muestre su interés en ella
+        /**
+         * Nos registramos en las páginas amarillas para que el vendedor nos pueda encontrar.
+         */
         DFAgentDescription dfd = new DFAgentDescription();
         dfd.setName(getAID());
         ServiceDescription sd = new ServiceDescription();
@@ -56,6 +58,33 @@ public class CompradorAgent extends Agent{
         addBehaviour(new FinalSubasta());
         //Comportamineto para compra de libro
         addBehaviour(new Venta());
+
+        /**
+         * Comportamento para saber si estoy interesado en la subasta de un libro particular
+         */
+        addBehaviour(new CyclicBehaviour() {
+            @Override
+            public void action() {
+                MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.SUBSCRIBE);
+                ACLMessage msg = myAgent.receive(mt);
+                if(msg!=null){
+                    ACLMessage reply = msg.createReply();
+                    reply.setPerformative(ACLMessage.SUBSCRIBE);
+                    /**
+                     * Si si estoy interesado:
+                     */
+                    if(libros.containsKey(msg.getContent())){
+                        reply.setContent("interesado");
+                    }
+                    else{
+                        reply.setContent("noInteresado");
+                    }
+                }
+                else{
+                    block();
+                }
+            }
+        });
     }
 
     /*Limpieza antes de eliminación*/
@@ -82,16 +111,13 @@ public class CompradorAgent extends Agent{
             public void action() {
                 libros.put(title, new Integer(price));
                 System.out.println(title+" inserted into catalogue. Price = "+price);
-
-                /**
-                 * Nos registramos en las páginas amarillas para que el vendedor nos pueda encontrar.
-                 */
-
             }
         } );
     }
 
-
+    /**
+     * Uno muy parecido al anterior para desapuntarse
+     */
 
     /**
      * Clase interna
@@ -101,7 +127,6 @@ public class CompradorAgent extends Agent{
      */
     private class Negociacion extends Behaviour {
 
-        int fase = 0;
 
         @Override
         public void action() {
@@ -115,8 +140,7 @@ public class CompradorAgent extends Agent{
                 ACLMessage reply = msg.createReply();
                 reply.setPerformative(ACLMessage.PROPOSE);
                 /**
-                 * Si no supera el precio para la subasta del libro indicado por ConversationID
-                 * IMPORTANTISIMO:: hacer que el getConversatioID sea el nombre del libro que se está subastanto
+                 * Si no supera el precio para la subasta del libro
                  */
                 int price = Integer.parseInt(msg.getContent());
                 if (libros.get(msg.getConversationId()) >= price) {
@@ -136,7 +160,7 @@ public class CompradorAgent extends Agent{
 
         @Override
         public boolean done() {
-            return fase == 3;
+            return false;
         }
     }
 

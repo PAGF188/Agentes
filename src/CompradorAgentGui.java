@@ -29,13 +29,13 @@ public class CompradorAgentGui extends javax.swing.JFrame {
         puja8.setVisible(false);
 
         estado1.setVisible(false);
-        estado1.setVisible(false);
-        estado1.setVisible(false);
-        estado1.setVisible(false);
-        estado1.setVisible(false);
-        estado1.setVisible(false);
-        estado1.setVisible(false);
-        estado1.setVisible(false);
+        estado2.setVisible(false);
+        estado3.setVisible(false);
+        estado4.setVisible(false);
+        estado5.setVisible(false);
+        estado6.setVisible(false);
+        estado7.setVisible(false);
+        estado8.setVisible(false);
 
         salir1.setVisible(false);
         salir2.setVisible(false);
