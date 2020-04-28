@@ -1,5 +1,6 @@
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
+import jade.core.behaviours.OneShotBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
@@ -18,7 +19,10 @@ import java.util.HashMap;
 public class CompradorAgent extends Agent{
 
     /*Libros sobre los que pujo*/
-    HashMap<String, Integer> libros;
+    private HashMap<String, Integer> libros;
+
+    /*Interfaz gráfica*/
+    private CompradorAgentGui myGui;
 
 
     /*Inicialización del agente*/
@@ -26,7 +30,10 @@ public class CompradorAgent extends Agent{
     protected void setup() {
 
         libros = new HashMap<>();
-        libros.put("libro1",25);
+
+        // Create and show the GUI
+        myGui = new CompradorAgentGui(this);
+        myGui.setVisible(true);
 
         //Registramos al comprador en el servcio de páginas amarillas.
         //Luego abrá que modificarlo para una subasta particular cuando muestre su interés en ella
@@ -64,6 +71,27 @@ public class CompradorAgent extends Agent{
         // Printout a dismissal message
         System.out.println("CompradorAgente "+getAID().getName()+" terminando.");
     }
+
+    /**
+     * Para apuntarse a la subasta de este tipo.
+     * @param title
+     * @param price
+     */
+    public void updateCatalogue(final String title, final int price) {
+        addBehaviour(new OneShotBehaviour() {
+            public void action() {
+                libros.put(title, new Integer(price));
+                System.out.println(title+" inserted into catalogue. Price = "+price);
+
+                /**
+                 * Nos registramos en las páginas amarillas para que el vendedor nos pueda encontrar.
+                 */
+
+            }
+        } );
+    }
+
+
 
     /**
      * Clase interna

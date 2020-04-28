@@ -40,38 +40,12 @@ public class VendedorAgent extends Agent{
         boolean paramos=false;
         //Esto sirve para 1, luego habrá que crear una clase subasta con todos los datos
         private AID ganador;
-        private ArrayList<AID> participantes;
 
         @Override
         public void action() {
-            if(fase==0) {
-                participantes = new ArrayList<>();
-            }
-            if(fase==1){
-                System.out.println("1");
-            }
+
             //Para cada subasta
             for (Map.Entry<String, Integer> entry : libros.entrySet()) {
-
-                /**
-                 * criterio de parada
-                 * 1 participante, 0 participantes
-                 */
-                if(participantes.size()==0 && fase!=0){
-                    paramos=true;
-                    return;
-                }
-                if(participantes.size()==1){
-                    paramos=true;
-                    ganador=participantes.get(0);
-                    return;
-                }
-                /**
-                 * Paso final. Al acabar subasta
-                 */
-                if(paramos==true){
-
-                }
 
                 //Consultamos páginas amarillas de la subasta i
                 DFAgentDescription template = new DFAgentDescription();
@@ -86,20 +60,16 @@ public class VendedorAgent extends Agent{
 
                     for (int i = 0; i < result.length; ++i) {
                         activos.add(result[i].getName());
-                        if(!participantes.contains(result[i].getName()))
-                            participantes.add(result[i].getName());
                     }
 
                     /**
-                     * Enviamos CFP a todos los activos que esten en participantes
+                     * Enviamos CFP a todos los activos
                      */
                     int respuestas=0;
                     ACLMessage cfp = new ACLMessage(ACLMessage.CFP);
                     for (int i = 0; i < activos.size(); ++i) {
-                        if(participantes.contains(activos.get(i))) {
-                            cfp.addReceiver(activos.get(i));
-                            respuestas++;
-                        }
+                        cfp.addReceiver(activos.get(i));
+                        respuestas++;
                     }
                     cfp.setContent(Integer.toString(entry.getValue()));
                     cfp.setConversationId(entry.getKey());
@@ -117,25 +87,22 @@ public class VendedorAgent extends Agent{
 
                             }
                             else{
-                                participantes.remove(msg.getSender());
+                                activos.remove(msg.getSender());
                             }
                         }
                         respuestas--;
                     }
 
                     /*Al acabar la ronda damos ganador a 1 participante que este activo*/
-                    for(int i=0; i<participantes.size();i++){
-                        if(activos.contains(participantes.get(i))){
-                            ganador=participantes.get(i);
-                            ACLMessage a = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);
-                            a.addReceiver(ganador);
-                            a.setContent("Aceptado " + entry.getValue());
-                            a.setConversationId(entry.getKey());
-                            a.setReplyWith("cfp"+System.currentTimeMillis()); // Unique value
-                            myAgent.send(a);
-                            break;
-                        }
-                    }
+                    if(activos.size()!=0)
+                     ganador=activos.get(0);
+                     ACLMessage a = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);
+                     a.addReceiver(ganador);
+                     a.setContent("Aceptado " + entry.getValue());
+                     a.setConversationId(entry.getKey());
+                     a.setReplyWith("cfp"+System.currentTimeMillis()); // Unique value
+                     myAgent.send(a);
+
 
                     /**
                      * mensajes de rechazo al resto de participantes activos
@@ -143,13 +110,30 @@ public class VendedorAgent extends Agent{
 
                     ACLMessage d = new ACLMessage(ACLMessage.REJECT_PROPOSAL);
                     for (int i = 0; i < activos.size(); ++i) {
-                        if(!activos.get(i).equals(ganador) && participantes.contains(activos.get(i)))
+                        if(!activos.get(i).equals(ganador))
                             d.addReceiver(activos.get(i));
                     }
                     d.setContent("Rechazado " + entry.getValue());
                     d.setConversationId(entry.getKey());
                     d.setReplyWith("cfp"+System.currentTimeMillis()); // Unique value
                     myAgent.send(d);
+
+                    /**
+                     * criterio de parada
+                     * 1 participante, 0 participantes
+                     */
+                    if(activos.size()==1 || activos.size()==0){
+                        paramos=true;
+                        return;
+                    }
+
+                    /**
+                     * Paso final. Al acabar subasta
+                     */
+                    if(paramos==true){
+
+                    }
+
                 }
                 catch (Exception fe) {
                     fe.printStackTrace();
