@@ -26,7 +26,7 @@ public class CompradorAgent extends Agent{
     protected void setup() {
 
         libros = new HashMap<>();
-        libros.put("libro1",50);
+        libros.put("libro1",25);
 
         //Registramos al comprador en el servcio de páginas amarillas.
         //Luego abrá que modificarlo para una subasta particular cuando muestre su interés en ella
@@ -43,7 +43,12 @@ public class CompradorAgent extends Agent{
             fe.printStackTrace();
         }
 
-        addBehaviour(new RequestPerformer());
+        //Comportamiento pasa negociación
+        addBehaviour(new Negociacion());
+        //Comportamineto final subasta notificación
+        addBehaviour(new FinalSubasta());
+        //Comportamineto para compra de libro
+        addBehaviour(new Venta());
     }
 
     /*Limpieza antes de eliminación*/
@@ -60,56 +65,101 @@ public class CompradorAgent extends Agent{
         System.out.println("CompradorAgente "+getAID().getName()+" terminando.");
     }
 
-    private class RequestPerformer extends Behaviour {
+    /**
+     * Clase interna
+     * Usada por el comprador durante la fase de negociación
+     * Recibirá un mensaje procediente del vendedor con la cantidad actual de la subasta
+     * Responderá si puja o no.
+     */
+    private class Negociacion extends Behaviour {
 
-        int fase=0;
+        int fase = 0;
 
         @Override
-        //Va tener que controlar a que subasta pertenece cada mensaje
         public void action() {
-            //Recibimos el mensaje y según su tipo hacemos diferentes cosas:
-            ACLMessage msg = myAgent.receive();
-            //Si es de tipo CFP estamos en la fase de subasta
-            if(msg!=null && msg.getPerformative()==ACLMessage.CFP){
-                System.out.println("Entrando en fase subasta");
+            /**
+             * Definimos el formato del mensaje. En este caso uno de tipo CFP
+             */
+            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CFP);
+            ACLMessage msg = myAgent.receive(mt);
+            //Si hay mensaje
+            if (msg != null) {
                 ACLMessage reply = msg.createReply();
                 reply.setPerformative(ACLMessage.PROPOSE);
                 /**
-                 * Si no supera el precio en cualqueira de nuestros libors -> propose
+                 * Si no supera el precio para la subasta del libro indicado por ConversationID
                  * IMPORTANTISIMO:: hacer que el getConversatioID sea el nombre del libro que se está subastanto
                  */
                 int price = Integer.parseInt(msg.getContent());
-                if(libros.get(msg.getConversationId())>=price){
+                if (libros.get(msg.getConversationId()) >= price) {
                     reply.setContent("acepto");
-                    System.out.println("Acepto");
+                    System.out.println("Acepto " +price);
                 } else {
-                  //Si no estamos interesados
-                    System.out.println("Deniego");
-                    reply.setContent("deniego");
+                    //Si no estamos interesados
+                    System.out.println("Deniego " +price);
+                    reply.setContent("deniego " + price);
                 }
                 myAgent.send(reply);
             }
-            //Me informan de que ha terminado la subasta y ¿de quién es el ganador?
-            else if(msg!=null && msg.getPerformative()==ACLMessage.INFORM){
-
-            }
-            //Gane la subasta
-            else if(msg!=null && msg.getPerformative()==ACLMessage.REQUEST){
-
-            }
-            else{
-                System.out.println("Bloqueado");
+            else {
                 block();
             }
-            fase++;
         }
 
         @Override
         public boolean done() {
-            return fase==3;
+            return fase == 3;
         }
     }
 
+    /**
+     * Clase interna.
+     * Usada por el comprador para ser notificado del final de la subasta
+     * ¿Y quién es el ganador?
+     */
+    private class FinalSubasta extends Behaviour {
 
+        @Override
+        public void action() {
+            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.INFORM);
+            ACLMessage msg = myAgent.receive(mt);
+            //Si hay mensaje
+            if(msg!=null){
+
+            }
+            else{
+                block();
+            }
+        }
+
+        @Override
+        public boolean done() {
+            return true;
+        }
+    }
+
+    /**
+     * Clase interna
+     * Usada por el comprador para proceder a la compra del libro si es el ganador
+     */
+    private class Venta extends Behaviour {
+        @Override
+        public void action() {
+            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.REQUEST);
+                ACLMessage msg = myAgent.receive(mt);
+                //Si hay mensaje
+                if(msg!=null){
+
+                }
+                else{
+                    block();
+                }
+            }
+
+            @Override
+            public boolean done() {
+                return true;
+            }
+        }
 
 }
