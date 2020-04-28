@@ -142,6 +142,10 @@ public class CompradorAgent extends Agent{
                 /**
                  * Si no supera el precio para la subasta del libro
                  */
+                /**
+                 * Hacer mañana -> coger el contenido del mensaje. Partirlo en dos. 1 parte libro, 2 parte precio actual
+                 * Comprobar con nuestro precio máximo
+                 */
                 int price = Integer.parseInt(msg.getContent());
                 if (libros.get(msg.getConversationId()) >= price) {
                     reply.setContent("acepto");

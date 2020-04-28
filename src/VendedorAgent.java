@@ -44,7 +44,9 @@ public class VendedorAgent extends Agent{
         @Override
         public void action() {
 
-            //Para cada subasta
+            //Habrá un ArrayList de objeto subasta. Este tendrá el libro, precio actual, incremento, ganador,...ç
+            //Recorrer este array y para daca una hacer CFP a los clientes que están interesados. Para saber cuales
+            //son, preguntar enviando mensaje subscribe y esperar respuesta.
             for (Map.Entry<String, Integer> entry : libros.entrySet()) {
 
                 //Consultamos páginas amarillas de la subasta i
