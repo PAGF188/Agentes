@@ -1,9 +1,11 @@
 import jade.core.AID;
 import jade.core.Agent;
 import jade.core.behaviours.Behaviour;
+import jade.core.behaviours.OneShotBehaviour;
 import jade.domain.DFService;
 import jade.domain.FIPAAgentManagement.DFAgentDescription;
 import jade.domain.FIPAAgentManagement.ServiceDescription;
+import jade.domain.FIPAException;
 import jade.lang.acl.ACLMessage;
 import jade.lang.acl.MessageTemplate;
 
@@ -24,16 +26,50 @@ public class VendedorAgent extends Agent{
      */
     ArrayList<Subasta> subastas;
 
+    /*Interfaz gráfica*/
+    private VendedorAgentGui myGui;
+
+    /**
+     * Método auxuliar pasa saber si una subasta ya está dada de alta
+     */
+
+    public boolean contiene(String libro){
+        for(Subasta aux: subastas){
+            if(aux.getLibro().equals(libro))
+                return true;
+        }
+        return false;
+    }
+
+
     @Override
     protected void setup(){
         subastas = new ArrayList<>();
-        subastas.add(new Subasta("libro1",10,5));
+        //subastas.add(new Subasta("libro1",10,5));
+
+        // Create and show the GUI
+        myGui = new VendedorAgentGui(this);
+        myGui.setVisible(true);
+
         addBehaviour(new VendedorAgent.Comportamiento());
     }
 
     @Override
     protected void takeDown() {
         System.out.println("Agente vendedor"+getAID().getName()+" terminando.");
+    }
+
+
+    /**
+     * Para iniciar una nueva suasta
+     */
+    public void updateSubastas(final String title, final int price, final int incremento) {
+        addBehaviour(new OneShotBehaviour() {
+            public void action() {
+                Subasta aux = new Subasta(title,price,incremento);
+                subastas.add(aux);
+            }
+        } );
     }
 
     private class Comportamiento extends Behaviour {
@@ -196,12 +232,13 @@ public class VendedorAgent extends Agent{
 
         @Override
         public boolean done() {
-            if(subastas.size()==0){
+            /*if(subastas.size()==0){
                 return true;
             }
             else{
                 return false;
-            }
+            }*/
+            return false;
         }
     }
 

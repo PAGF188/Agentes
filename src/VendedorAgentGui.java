@@ -8,13 +8,13 @@ import java.util.ArrayList;
  *
  * @author pablo
  */
-public class CompradorAgentGui extends javax.swing.JFrame {
+public class VendedorAgentGui extends javax.swing.JFrame {
 
-    private CompradorAgent myAgent;
-    private int incremento=20;
+    private VendedorAgent myAgent;
     private ArrayList<Puja> pujas;
+    private int incrementoGrafico=20;
 
-    public CompradorAgentGui(CompradorAgent a) {
+    public VendedorAgentGui(VendedorAgent a) {
 
         myAgent=a;
         pujas = new ArrayList<>();
@@ -30,11 +30,13 @@ public class CompradorAgentGui extends javax.swing.JFrame {
                 try {
                     String title = libro.getText().trim();
                     String price = precio.getText().trim();
+                    String incre = incremento.getText().trim();
 
-                    if(! myAgent.getTodos().containsKey(title)){
-                        myAgent.updateCatalogue(title, Integer.parseInt(price));
+                    if(! myAgent.contiene(title)){
+                        myAgent.updateSubastas(title, Integer.parseInt(price), Integer.parseInt(incre));
                         libro.setText("");
                         precio.setText("");
+                        incremento.setText("");
 
                         /**
                          * Colocamos los campos de la subasta
@@ -43,7 +45,7 @@ public class CompradorAgentGui extends javax.swing.JFrame {
                         puja.setText(title + " " + price);
                         puja.setFont(new java.awt.Font("Cantarell", 1, 14));
                         puja.setSize(80,30);
-                        puja.setLocation(5, incremento);
+                        puja.setLocation(5, incrementoGrafico);
                         puja.setEnabled(false);
                         puja.setAutoscrolls(true);
                         puja.setHorizontalAlignment(javax.swing.JTextField.CENTER);
@@ -54,42 +56,25 @@ public class CompradorAgentGui extends javax.swing.JFrame {
                         estado.setText("En espera");
                         estado.setFont(new java.awt.Font("Cantarell", 1, 14));
                         estado.setSize(250,30);
-                        estado.setLocation(1, incremento);
+                        estado.setLocation(1, incrementoGrafico);
                         estado.setEnabled(false);
                         estado.setAutoscrolls(true);
                         estado.setHorizontalAlignment(javax.swing.JTextField.CENTER);
                         estado.setForeground(new java.awt.Color(0, 0, 0));
                         jPanel3.add(estado);
 
-                        JButton aceptar = new JButton();
-                        aceptar.setText("SALIR");
-                        aceptar.setFont(new java.awt.Font("Cantarell", 1, 14));
-                        aceptar.setForeground(new java.awt.Color(254, 254, 254));
-                        aceptar.setBackground( new Color(71,103,176));
-                        aceptar.setSize(80,30);
-                        aceptar.setLocation(1, incremento);
-                        aceptar.repaint();
-                        jPanel4.add(aceptar);
-                        jPanel4.repaint();
-
-                        aceptar.addActionListener(new java.awt.event.ActionListener() {
-                            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                                salirActionPerformed(evt,title, estado, aceptar,puja);
-                            }
-                        });
-
-                        incremento+=40;
-                        Puja aux = new Puja(title,puja,estado,aceptar);
+                        incrementoGrafico+=40;
+                        Puja aux = new Puja(title,puja,estado);
                         pujas.add(aux);
                     }
                     else{
                         libro.setText("");
                         precio.setText("");
-                        JOptionPane.showMessageDialog(CompradorAgentGui.this, "La subasta de " + title + " ya existe", "Error", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(VendedorAgentGui.this, "La subasta de " + title + " ya existe", "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 }
                 catch (Exception e) {
-                    JOptionPane.showMessageDialog(CompradorAgentGui.this, "Invalid values. "+e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(VendedorAgentGui.this, "Invalid values. "+e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
                 }
             }
         } );
@@ -107,15 +92,6 @@ public class CompradorAgentGui extends javax.swing.JFrame {
         }
     }
 
-    public void terminar(String libro){
-        for(Puja aux: pujas){
-            if(aux.getLibro().equals(libro)){
-                aux.getAceptar().setVisible(false);
-                aux.getEstado().setBackground(new Color(199, 35, 21));
-                this.repaint();
-            }
-        }
-    }
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -132,6 +108,8 @@ public class CompradorAgentGui extends javax.swing.JFrame {
         jLabel2 = new javax.swing.JLabel();
         precio = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
+        jLabel3 = new javax.swing.JLabel();
+        incremento = new javax.swing.JTextField();
         jPanel2 = new javax.swing.JPanel();
         jPanel3 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
@@ -155,14 +133,21 @@ public class CompradorAgentGui extends javax.swing.JFrame {
         jLabel2.setFont(new java.awt.Font("Cantarell", 0, 18)); // NOI18N
         jLabel2.setForeground(new java.awt.Color(254, 254, 254));
         jLabel2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        jLabel2.setText("PRECIO MÁX");
+        jLabel2.setText("PRECIO");
 
         precio.setFont(new java.awt.Font("Cantarell", 0, 14)); // NOI18N
 
         jButton1.setBackground(new java.awt.Color(71, 103, 176));
         jButton1.setFont(new java.awt.Font("Cantarell", 1, 18)); // NOI18N
         jButton1.setForeground(new java.awt.Color(254, 254, 254));
-        jButton1.setText("PUJAR");
+        jButton1.setText("SUBASTAR");
+
+        jLabel3.setFont(new java.awt.Font("Cantarell", 0, 18)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(254, 254, 254));
+        jLabel3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
+        jLabel3.setText("INCREMENTO");
+
+        incremento.setFont(new java.awt.Font("Cantarell", 0, 14)); // NOI18N
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -171,7 +156,8 @@ public class CompradorAgentGui extends javax.swing.JFrame {
                         .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                         .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 174, javax.swing.GroupLayout.PREFERRED_SIZE))
                                 .addGap(0, 0, Short.MAX_VALUE))
                         .addGroup(jPanel1Layout.createSequentialGroup()
                                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -181,8 +167,11 @@ public class CompradorAgentGui extends javax.swing.JFrame {
                                                         .addComponent(libro, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE)
                                                         .addComponent(precio, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE)))
                                         .addGroup(jPanel1Layout.createSequentialGroup()
-                                                .addGap(33, 33, 33)
-                                                .addComponent(jButton1, javax.swing.GroupLayout.PREFERRED_SIZE, 96, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                                .addContainerGap()
+                                                .addComponent(incremento, javax.swing.GroupLayout.PREFERRED_SIZE, 154, javax.swing.GroupLayout.PREFERRED_SIZE))
+                                        .addGroup(jPanel1Layout.createSequentialGroup()
+                                                .addGap(25, 25, 25)
+                                                .addComponent(jButton1)))
                                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
@@ -197,6 +186,10 @@ public class CompradorAgentGui extends javax.swing.JFrame {
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                                 .addComponent(precio, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(18, 18, 18)
+                                .addComponent(jLabel3)
+                                .addGap(12, 12, 12)
+                                .addComponent(incremento, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addGap(32, 32, 32)
                                 .addComponent(jButton1)
                                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
@@ -258,39 +251,19 @@ public class CompradorAgentGui extends javax.swing.JFrame {
         pack();
     }// </editor-fold>
 
-    private void salirActionPerformed(java.awt.event.ActionEvent evt, String libro, JTextField estado, JButton b, JTextField puja){
-
-        /**
-         * Salir de la subasta
-         */
-        if(b.getText().equals("SALIR")){
-            estado.setText("Salido");
-            b.setText("ENTRAR");
-            b.repaint();
-            myAgent.salirSubasta(libro);
-        }
-        /**
-         * Entrar de nuevo en la subasta
-         */
-        else if(b.getText().equals("ENTRAR")){
-            estado.setText("En espera");
-            b.setText("SALIR");
-            b.repaint();
-            int precio = Integer.parseInt(puja.getText().split(" ")[1]);
-            myAgent.updateCatalogue(libro,precio);
-        }
-    }
 
     // Variables declaration - do not modify
+    private javax.swing.JTextField incremento;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
-    private javax.swing.JTextField libro;
-    private javax.swing.JTextField precio;
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
+    private javax.swing.JTextField libro;
+    private javax.swing.JTextField precio;
 
     // End of variables declaration
 
@@ -298,13 +271,11 @@ public class CompradorAgentGui extends javax.swing.JFrame {
         private String libro;
         private JTextField puja;
         private JTextField estado;
-        private JButton aceptar;
 
-        public Puja(String libro, JTextField puja, JTextField estado, JButton aceptar) {
+        public Puja(String libro, JTextField puja, JTextField estado) {
             this.libro = libro;
             this.puja = puja;
             this.estado = estado;
-            this.aceptar = aceptar;
         }
 
         public String getLibro() {
@@ -319,9 +290,6 @@ public class CompradorAgentGui extends javax.swing.JFrame {
             return estado;
         }
 
-        public JButton getAceptar() {
-            return aceptar;
-        }
 
         public void setLibro(String libro) {
             this.libro = libro;
@@ -333,10 +301,6 @@ public class CompradorAgentGui extends javax.swing.JFrame {
 
         public void setEstado(JTextField estado) {
             this.estado = estado;
-        }
-
-        public void setAceptar(JButton aceptar) {
-            this.aceptar = aceptar;
         }
     }
 }
