@@ -90,29 +90,33 @@ public class VendedorAgent extends Agent{
                     /**
                      * Esperamos a obtener las respuestas de todos
                      */
+                    ArrayList<AID> aceptados = new ArrayList<>();
                     MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.PROPOSE);
                     while(respuestas!=0){
                         ACLMessage msg = myAgent.receive(mt);
                         if (msg != null) {
                             if(msg.getContent().equals("acepto")){
-
+                                aceptados.add(msg.getSender());
                             }
                             else{
                                 aux.getParticipantes().remove(msg.getSender());
                             }
+                            respuestas--;
                         }
-                        respuestas--;
+
                     }
 
                     /*Al acabar la ronda damos ganador a 1 participante que este activo*/
-                    if(aux.getParticipantes().size()!=0)
-                     aux.setGanador(aux.getParticipantes().get(0));
-                     ACLMessage a = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);
-                     a.addReceiver(aux.getGanador());
-                     a.setContent("Aceptado " + aux.getLibro());
-                     a.setConversationId(aux.getLibro());
-                     a.setReplyWith("cfp"+System.currentTimeMillis()); // Unique value
-                     myAgent.send(a);
+                    if(aceptados.size()!=0) {
+                        aux.setGanador(aceptados.get(0));
+                        ACLMessage a = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);
+                        a.addReceiver(aux.getGanador());
+                        a.setContent("Aceptado " + aux.getLibro());
+                        a.setConversationId(aux.getLibro());
+                        a.setReplyWith("cfp" + System.currentTimeMillis()); // Unique value
+                        myAgent.send(a);
+                        System.out.println("Mensaje aceptaPropose envíado a " + aux.getGanador().getName());
+                    }
 
 
                     /**
@@ -120,9 +124,11 @@ public class VendedorAgent extends Agent{
                      */
 
                     ACLMessage d = new ACLMessage(ACLMessage.REJECT_PROPOSAL);
-                    for (int i = 0; i < aux.getParticipantes().size(); ++i) {
-                        if(!aux.participantes.get(i).equals(aux.getGanador()))
-                            d.addReceiver(aux.getParticipantes().get(i));
+                    for (int i = 0; i < aceptados.size(); ++i) {
+                        if(!aceptados.get(i).equals(aux.getGanador())) {
+                            d.addReceiver(aceptados.get(i));
+                            System.out.println("Mensaje de rechazo envíado a: " +aceptados.get(i).getName());
+                        }
                     }
                     d.setContent("Rechazado " + aux.getPrecio());
                     d.setConversationId(aux.getLibro());
@@ -133,7 +139,7 @@ public class VendedorAgent extends Agent{
                      * criterio de parada
                      * 1 participante, 0 participantes
                      */
-                    if(aux.getParticipantes().size()==1 || aux.getParticipantes().size()==0){
+                    if(aceptados.size()==1 || aceptados.size()==0){
                         aux.setFase(-1);
                     }
 
