@@ -49,7 +49,7 @@ public class CompradorAgentGui extends javax.swing.JFrame {
                         jPanel2.add(puja);
 
                         JTextField estado = new JTextField();
-                        estado.setText("No empezada");
+                        estado.setText("En espera");
                         estado.setFont(new java.awt.Font("Cantarell", 1, 14));
                         estado.setSize(200,30);
                         estado.setLocation(1, incremento);
