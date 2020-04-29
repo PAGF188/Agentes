@@ -19,18 +19,29 @@ import java.util.HashMap;
  */
 public class CompradorAgent extends Agent{
 
-    /*Libros sobre los que pujo*/
+    /*Libros sobre los que pujo. Y están activos*/
     private HashMap<String, Integer> libros;
+
+    /* Libros totales */
+    private HashMap<String, Integer> todos;
 
     /*Interfaz gráfica*/
     private CompradorAgentGui myGui;
 
+    public HashMap<String, Integer> getLibros(){
+        return(this.libros);
+    }
+
+    public HashMap<String, Integer> getTodos(){
+        return(this.todos);
+    }
 
     /*Inicialización del agente*/
     @Override
     protected void setup() {
 
         libros = new HashMap<>();
+        todos = new HashMap<>();
 
         // Create and show the GUI
         myGui = new CompradorAgentGui(this);
@@ -83,8 +94,10 @@ public class CompradorAgent extends Agent{
     public void updateCatalogue(final String title, final int price) {
         addBehaviour(new OneShotBehaviour() {
             public void action() {
+
+                todos.put(title, new Integer(price));
                 libros.put(title, new Integer(price));
-                System.out.println(title+" inserted into catalogue. Price = "+price);
+                System.out.println(title+" añadido. Price = "+price +  "Entrando subasta.");
 
                 /**
                  * Modificamos la descripción del agente
@@ -116,6 +129,39 @@ public class CompradorAgent extends Agent{
     /**
      * Uno muy parecido al anterior para desapuntarse
      */
+    public void salirSubasta(final String title) {
+        addBehaviour(new OneShotBehaviour() {
+            public void action() {
+
+                libros.remove(title);
+                System.out.println(title+" eliminado. Saliendo de su subasta");
+
+                /**
+                 * Modificamos la descripción del agente
+                 */
+                DFAgentDescription dfd = new DFAgentDescription();
+                dfd.setName(getAID());
+
+                /**
+                 * Añadimos un servicio libro, por cada libro
+                 */
+                for (String key : libros.keySet()) {
+                    ServiceDescription sd = new ServiceDescription();
+                    sd.setType("subasta");
+                    sd.setName(key);
+                    dfd.addServices(sd);
+                }
+                /**
+                 * Grabamos los datos
+                 */
+                try {
+                    DFService.modify(myAgent,dfd);
+                } catch (FIPAException e) {
+                    e.printStackTrace();
+                }
+            }
+        } );
+    }
 
     /**
      * Clase interna.

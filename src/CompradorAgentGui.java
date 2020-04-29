@@ -1,4 +1,5 @@
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -10,6 +11,8 @@ public class CompradorAgentGui extends javax.swing.JFrame {
 
     private CompradorAgent myAgent;
 
+    private int incremento=20;
+
     public CompradorAgentGui(CompradorAgent a) {
 
         myAgent=a;
@@ -18,33 +21,6 @@ public class CompradorAgentGui extends javax.swing.JFrame {
         this.setLocationRelativeTo(null);
         this.setResizable(false);
 
-        /*Ocultamos campos*/
-        puja1.setVisible(false);
-        puja2.setVisible(false);
-        puja3.setVisible(false);
-        puja4.setVisible(false);
-        puja5.setVisible(false);
-        puja6.setVisible(false);
-        puja7.setVisible(false);
-        puja8.setVisible(false);
-
-        estado1.setVisible(false);
-        estado2.setVisible(false);
-        estado3.setVisible(false);
-        estado4.setVisible(false);
-        estado5.setVisible(false);
-        estado6.setVisible(false);
-        estado7.setVisible(false);
-        estado8.setVisible(false);
-
-        salir1.setVisible(false);
-        salir2.setVisible(false);
-        salir3.setVisible(false);
-        salir4.setVisible(false);
-        salir5.setVisible(false);
-        salir6.setVisible(false);
-        salir7.setVisible(false);
-        salir8.setVisible(false);
 
         /*Acción botón*/
         jButton1.addActionListener( new ActionListener() {
@@ -52,9 +28,62 @@ public class CompradorAgentGui extends javax.swing.JFrame {
                 try {
                     String title = libro.getText().trim();
                     String price = precio.getText().trim();
-                    myAgent.updateCatalogue(title, Integer.parseInt(price));
-                    libro.setText("");
-                    precio.setText("");
+
+                    if(! myAgent.getTodos().containsKey(title)){
+                        myAgent.updateCatalogue(title, Integer.parseInt(price));
+                        libro.setText("");
+                        precio.setText("");
+
+                        /**
+                         * Colocamos los campos de la subasta
+                         */
+                        JTextField puja = new JTextField();
+                        puja.setText(title + " " + price);
+                        puja.setFont(new java.awt.Font("Cantarell", 1, 14));
+                        puja.setSize(80,30);
+                        puja.setLocation(5, incremento);
+                        puja.setEnabled(false);
+                        puja.setAutoscrolls(true);
+                        puja.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+                        puja.setForeground(new java.awt.Color(0, 0, 0));
+                        jPanel2.add(puja);
+
+                        JTextField estado = new JTextField();
+                        estado.setText("No empezada");
+                        estado.setFont(new java.awt.Font("Cantarell", 1, 14));
+                        estado.setSize(200,30);
+                        estado.setLocation(1, incremento);
+                        estado.setEnabled(false);
+                        estado.setAutoscrolls(true);
+                        estado.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+                        estado.setForeground(new java.awt.Color(0, 0, 0));
+                        jPanel3.add(estado);
+
+                        JButton aceptar = new JButton();
+                        aceptar.setText("SALIR");
+                        aceptar.setFont(new java.awt.Font("Cantarell", 1, 14));
+                        aceptar.setForeground(new java.awt.Color(254, 254, 254));
+                        aceptar.setBackground( new Color(71,103,176));
+                        aceptar.setSize(80,30);
+                        aceptar.setLocation(1, incremento);
+                        aceptar.repaint();
+                        jPanel4.add(aceptar);
+                        jPanel4.repaint();
+
+                        aceptar.addActionListener(new java.awt.event.ActionListener() {
+                            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                                salirActionPerformed(evt,title, estado, aceptar,puja);
+                            }
+                        });
+
+                        incremento+=40;
+                    }
+                    else{
+                        libro.setText("");
+                        precio.setText("");
+                        JOptionPane.showMessageDialog(CompradorAgentGui.this, title + " ya está registrado", "Error", JOptionPane.ERROR_MESSAGE);
+
+                    }
                 }
                 catch (Exception e) {
                     JOptionPane.showMessageDialog(CompradorAgentGui.this, "Invalid values. "+e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -80,30 +109,8 @@ public class CompradorAgentGui extends javax.swing.JFrame {
         precio = new javax.swing.JTextField();
         jButton1 = new javax.swing.JButton();
         jPanel2 = new javax.swing.JPanel();
-        puja1 = new javax.swing.JLabel();
-        estado1 = new javax.swing.JLabel();
-        salir1 = new javax.swing.JButton();
-        puja2 = new javax.swing.JLabel();
-        salir2 = new javax.swing.JButton();
-        estado2 = new javax.swing.JLabel();
-        salir3 = new javax.swing.JButton();
-        salir4 = new javax.swing.JButton();
-        salir6 = new javax.swing.JButton();
-        salir5 = new javax.swing.JButton();
-        salir7 = new javax.swing.JButton();
-        salir8 = new javax.swing.JButton();
-        estado4 = new javax.swing.JLabel();
-        puja3 = new javax.swing.JLabel();
-        estado3 = new javax.swing.JLabel();
-        puja4 = new javax.swing.JLabel();
-        puja5 = new javax.swing.JLabel();
-        puja6 = new javax.swing.JLabel();
-        puja8 = new javax.swing.JLabel();
-        puja7 = new javax.swing.JLabel();
-        estado5 = new javax.swing.JLabel();
-        estado6 = new javax.swing.JLabel();
-        estado7 = new javax.swing.JLabel();
-        estado8 = new javax.swing.JLabel();
+        jPanel3 = new javax.swing.JPanel();
+        jPanel4 = new javax.swing.JPanel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -170,165 +177,37 @@ public class CompradorAgentGui extends javax.swing.JFrame {
                                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
-        puja1.setText("libro1");
-
-        estado1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        estado1.setText("jLabel4");
-
-        salir1.setText("Salir1");
-
-        puja2.setText("libro2");
-
-        salir2.setText("Salir1");
-
-        estado2.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        estado2.setText("jLabel4");
-
-        salir3.setText("Salir1");
-
-        salir4.setText("Salir1");
-
-        salir6.setText("Salir1");
-
-        salir5.setText("Salir1");
-
-        salir7.setText("Salir1");
-
-        salir8.setText("Salir1");
-
-        estado4.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        estado4.setText("jLabel4");
-
-        puja3.setText("libro1");
-
-        estado3.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        estado3.setText("jLabel4");
-
-        puja4.setText("libro2");
-
-        puja5.setText("libro2");
-
-        puja6.setText("libro2");
-
-        puja8.setText("libro2");
-
-        puja7.setText("libro2");
-
-        estado5.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        estado5.setText("jLabel4");
-
-        estado6.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        estado6.setText("jLabel4");
-
-        estado7.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        estado7.setText("jLabel4");
-
-        estado8.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
-        estado8.setText("jLabel4");
-
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
         jPanel2Layout.setHorizontalGroup(
                 jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                                .addGap(23, 23, 23)
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                        .addGroup(jPanel2Layout.createSequentialGroup()
-                                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                                        .addComponent(puja2)
-                                                        .addComponent(puja1))
-                                                .addGap(26, 26, 26)
-                                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                                        .addGroup(jPanel2Layout.createSequentialGroup()
-                                                                .addComponent(estado2, javax.swing.GroupLayout.DEFAULT_SIZE, 191, Short.MAX_VALUE)
-                                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                                .addComponent(salir2))
-                                                        .addGroup(jPanel2Layout.createSequentialGroup()
-                                                                .addComponent(estado1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                                .addComponent(salir1))))
-                                        .addGroup(jPanel2Layout.createSequentialGroup()
-                                                .addComponent(puja3)
-                                                .addGap(26, 26, 26)
-                                                .addComponent(estado3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(salir3))
-                                        .addGroup(jPanel2Layout.createSequentialGroup()
-                                                .addComponent(puja4)
-                                                .addGap(26, 26, 26)
-                                                .addComponent(estado4, javax.swing.GroupLayout.DEFAULT_SIZE, 191, Short.MAX_VALUE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(salir4))
-                                        .addGroup(jPanel2Layout.createSequentialGroup()
-                                                .addComponent(puja5)
-                                                .addGap(26, 26, 26)
-                                                .addComponent(estado5, javax.swing.GroupLayout.DEFAULT_SIZE, 191, Short.MAX_VALUE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(salir5))
-                                        .addGroup(jPanel2Layout.createSequentialGroup()
-                                                .addComponent(puja6)
-                                                .addGap(26, 26, 26)
-                                                .addComponent(estado6, javax.swing.GroupLayout.DEFAULT_SIZE, 191, Short.MAX_VALUE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(salir6))
-                                        .addGroup(jPanel2Layout.createSequentialGroup()
-                                                .addComponent(puja7)
-                                                .addGap(26, 26, 26)
-                                                .addComponent(estado7, javax.swing.GroupLayout.DEFAULT_SIZE, 191, Short.MAX_VALUE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(salir7))
-                                        .addGroup(jPanel2Layout.createSequentialGroup()
-                                                .addComponent(puja8)
-                                                .addGap(26, 26, 26)
-                                                .addComponent(estado8, javax.swing.GroupLayout.DEFAULT_SIZE, 191, Short.MAX_VALUE)
-                                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                                .addComponent(salir8)))
-                                .addGap(23, 23, 23))
+                        .addGap(0, 103, Short.MAX_VALUE)
         );
         jPanel2Layout.setVerticalGroup(
                 jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                        .addGroup(jPanel2Layout.createSequentialGroup()
-                                .addGap(18, 18, 18)
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                        .addComponent(puja1)
-                                        .addComponent(estado1)
-                                        .addComponent(salir1))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                        .addComponent(puja2)
-                                        .addComponent(estado2)
-                                        .addComponent(salir2))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                        .addComponent(salir3)
-                                        .addComponent(puja3)
-                                        .addComponent(estado3))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                        .addComponent(salir4)
-                                        .addComponent(puja4)
-                                        .addComponent(estado4))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                        .addComponent(salir5)
-                                        .addComponent(puja5)
-                                        .addComponent(estado5))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                        .addComponent(salir6)
-                                        .addComponent(puja6)
-                                        .addComponent(estado6))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                        .addComponent(salir7)
-                                        .addComponent(puja7)
-                                        .addComponent(estado7))
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                                        .addComponent(salir8)
-                                        .addComponent(puja8)
-                                        .addComponent(estado8))
-                                .addContainerGap(93, Short.MAX_VALUE))
+                        .addGap(0, 481, Short.MAX_VALUE)
+        );
+
+        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
+        jPanel3.setLayout(jPanel3Layout);
+        jPanel3Layout.setHorizontalGroup(
+                jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGap(0, 274, Short.MAX_VALUE)
+        );
+        jPanel3Layout.setVerticalGroup(
+                jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGap(0, 481, Short.MAX_VALUE)
+        );
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+                jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGap(0, 102, Short.MAX_VALUE)
+        );
+        jPanel4Layout.setVerticalGroup(
+                jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGap(0, 481, Short.MAX_VALUE)
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -338,28 +217,47 @@ public class CompradorAgentGui extends javax.swing.JFrame {
                         .addGroup(layout.createSequentialGroup()
                                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, 177, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                                .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         layout.setVerticalGroup(
                 layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                         .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
         );
 
         pack();
     }// </editor-fold>
 
+    private void salirActionPerformed(java.awt.event.ActionEvent evt, String libro, JTextField estado, JButton b, JTextField puja){
 
+        /**
+         * Salir de la subasta
+         */
+        if(b.getText().equals("SALIR")){
+            estado.setText("Salido");
+            b.setText("ENTRAR");
+            b.repaint();
+            myAgent.salirSubasta(libro);
+        }
+        /**
+         * Entrar de nuevo en la subasta
+         */
+        else if(b.getText().equals("ENTRAR")){
+            estado.setText("En espera");
+            b.setText("SALIR");
+            b.repaint();
+            int precio = Integer.parseInt(puja.getText().split(" ")[1]);
+            myAgent.updateCatalogue(libro,precio);
+        }
+    }
 
     // Variables declaration - do not modify
-    private javax.swing.JLabel estado1;
-    private javax.swing.JLabel estado2;
-    private javax.swing.JLabel estado3;
-    private javax.swing.JLabel estado4;
-    private javax.swing.JLabel estado5;
-    private javax.swing.JLabel estado6;
-    private javax.swing.JLabel estado7;
-    private javax.swing.JLabel estado8;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
@@ -367,21 +265,8 @@ public class CompradorAgentGui extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel2;
     private javax.swing.JTextField libro;
     private javax.swing.JTextField precio;
-    private javax.swing.JLabel puja1;
-    private javax.swing.JLabel puja2;
-    private javax.swing.JLabel puja3;
-    private javax.swing.JLabel puja4;
-    private javax.swing.JLabel puja5;
-    private javax.swing.JLabel puja6;
-    private javax.swing.JLabel puja7;
-    private javax.swing.JLabel puja8;
-    private javax.swing.JButton salir1;
-    private javax.swing.JButton salir2;
-    private javax.swing.JButton salir3;
-    private javax.swing.JButton salir4;
-    private javax.swing.JButton salir5;
-    private javax.swing.JButton salir6;
-    private javax.swing.JButton salir7;
-    private javax.swing.JButton salir8;
+    private javax.swing.JPanel jPanel3;
+    private javax.swing.JPanel jPanel4;
+
     // End of variables declaration
 }
