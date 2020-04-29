@@ -74,7 +74,7 @@ public class VendedorAgent extends Agent{
                     }
 
                     /**
-                     * Enviamos CFP a todos los activos, con contenido de mensaje precio y COnversatioID libro
+                     * Enviamos CFP a todos los participantes, con contenido de mensaje precio y COnversatioID libro
                      */
                     int respuestas=0;
                     ACLMessage cfp = new ACLMessage(ACLMessage.CFP);
@@ -99,11 +99,10 @@ public class VendedorAgent extends Agent{
                                 aceptados.add(msg.getSender());
                             }
                             else{
-                                aux.getParticipantes().remove(msg.getSender());
+                                //aux.getParticipantes().remove(msg.getSender());
                             }
                             respuestas--;
                         }
-
                     }
 
                     /*Al acabar la ronda damos ganador a 1 participante que este activo*/
@@ -116,24 +115,25 @@ public class VendedorAgent extends Agent{
                         a.setReplyWith("cfp" + System.currentTimeMillis()); // Unique value
                         myAgent.send(a);
                         System.out.println("Mensaje aceptaPropose envíado a " + aux.getGanador().getName());
-                    }
 
 
-                    /**
-                     * mensajes de rechazo al resto de participantes activos
-                     */
 
-                    ACLMessage d = new ACLMessage(ACLMessage.REJECT_PROPOSAL);
-                    for (int i = 0; i < aceptados.size(); ++i) {
-                        if(!aceptados.get(i).equals(aux.getGanador())) {
-                            d.addReceiver(aceptados.get(i));
-                            System.out.println("Mensaje de rechazo envíado a: " +aceptados.get(i).getName());
+                        /**
+                         * mensajes de rechazo al resto de participantes activos
+                         */
+
+                        ACLMessage d = new ACLMessage(ACLMessage.REJECT_PROPOSAL);
+                        for (int i = 0; i < aceptados.size(); ++i) {
+                            if(!aceptados.get(i).equals(aux.getGanador())) {
+                                d.addReceiver(aceptados.get(i));
+                                System.out.println("Mensaje de rechazo envíado a: " +aceptados.get(i).getName());
+                            }
                         }
+                        d.setContent("Rechazado " + aux.getPrecio());
+                        d.setConversationId(aux.getLibro());
+                        d.setReplyWith("cfp"+System.currentTimeMillis()); // Unique value
+                        myAgent.send(d);
                     }
-                    d.setContent("Rechazado " + aux.getPrecio());
-                    d.setConversationId(aux.getLibro());
-                    d.setReplyWith("cfp"+System.currentTimeMillis()); // Unique value
-                    myAgent.send(d);
 
                     /**
                      * criterio de parada
@@ -147,11 +147,31 @@ public class VendedorAgent extends Agent{
                      * Paso final. Al acabar subasta
                      */
                     if(aux.getFase()==-1){
+                        /**
+                         * Para apreciar mejor fin de subasta.
+                         */
+                        Thread.sleep(1000);
                         //añadir a la lista de eliminar subastas
                         eliminar.add(aux);
                         /**
-                         * Notificar ganador y reslutados
+                         * Notificar a todos los participantes de que termino ACL.INFORM, y al ganador envíar ACL.REQUEST
                          */
+                        ACLMessage inform = new ACLMessage(ACLMessage.INFORM);
+                        for (int i = 0; i < aux.getParticipantes().size(); ++i) {
+                            inform.addReceiver(aux.getParticipantes().get(i));
+                        }
+                        inform.setContent(aux.getGanador().getName());
+                        inform.setConversationId(aux.getLibro());
+                        myAgent.send(inform);
+
+                        /**
+                         * Notificar al ganador que proceda a la compra
+                         */
+                        ACLMessage compra = new ACLMessage(ACLMessage.REQUEST);
+                        compra.addReceiver(aux.getGanador());
+                        compra.setContent("comprar");
+                        compra.setConversationId(aux.getLibro());
+                        myAgent.send(compra);
                     }
                     else{
                         aux.incrementar();

@@ -121,7 +121,7 @@ public class CompradorAgent extends Agent{
      * Clase interna.
      * Usada por el comprador durante la fase de negociación.
      * Recibirá un mensaje procediente del vendedor con la cantidad de dinero de la ronda actual
-     * El id de la conversación será el libro sobre el que se estña pujando
+     * El id de la conversación será el libro sobre el que se está pujando
      * Responderá si puja o no.
      */
     private class Negociacion extends Behaviour {
@@ -146,11 +146,11 @@ public class CompradorAgent extends Agent{
 
                 if (libros.get(libro) >= precio) {
                     reply.setContent("acepto");
-                    System.out.println("acepto " + libro +" "+precio);
+                    System.out.println(myAgent.getName() + " acepto " + libro +" "+precio);
                 } else {
                     //Si no estamos interesados
                     reply.setContent("deniego " + precio);
-                    System.out.println("deniego " + libro +" "+precio);
+                    System.out.println(myAgent.getName() + " deniego " + libro +" "+precio);
                 }
                 myAgent.send(reply);
             }
@@ -159,6 +159,9 @@ public class CompradorAgent extends Agent{
             }
         }
 
+        /**
+         * Cambiar por return libros.size()==0
+         */
         @Override
         public boolean done() {
             return false;
@@ -168,7 +171,6 @@ public class CompradorAgent extends Agent{
     /**
      * Clase interna.
      * Usada por el comprador para ser notificado del final de la subasta
-     * ¿Y quién es el ganador?
      */
     private class FinalSubasta extends Behaviour {
 
