@@ -41,10 +41,6 @@ public class CompradorAgent extends Agent{
          */
         DFAgentDescription dfd = new DFAgentDescription();
         dfd.setName(getAID());
-        ServiceDescription sd = new ServiceDescription();
-        sd.setType("subasta");
-        sd.setName("libro1");
-        dfd.addServices(sd);
         try {
             DFService.register(this, dfd);
         }
@@ -59,32 +55,6 @@ public class CompradorAgent extends Agent{
         //Comportamineto para compra de libro
         addBehaviour(new Venta());
 
-        /**
-         * Comportamento para saber si estoy interesado en la subasta de un libro particular
-         */
-        addBehaviour(new CyclicBehaviour() {
-            @Override
-            public void action() {
-                MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.SUBSCRIBE);
-                ACLMessage msg = myAgent.receive(mt);
-                if(msg!=null){
-                    ACLMessage reply = msg.createReply();
-                    reply.setPerformative(ACLMessage.SUBSCRIBE);
-                    /**
-                     * Si si estoy interesado:
-                     */
-                    if(libros.containsKey(msg.getContent())){
-                        reply.setContent("interesado");
-                    }
-                    else{
-                        reply.setContent("noInteresado");
-                    }
-                }
-                else{
-                    block();
-                }
-            }
-        });
     }
 
     /*Limpieza antes de eliminación*/
@@ -111,6 +81,30 @@ public class CompradorAgent extends Agent{
             public void action() {
                 libros.put(title, new Integer(price));
                 System.out.println(title+" inserted into catalogue. Price = "+price);
+
+                /**
+                 * Modificamos la descripción del agente
+                 */
+                DFAgentDescription dfd = new DFAgentDescription();
+                dfd.setName(getAID());
+
+                /**
+                 * Añadimos un servicio libro, por cada libro
+                 */
+                for (String key : libros.keySet()) {
+                    ServiceDescription sd = new ServiceDescription();
+                    sd.setType("subasta");
+                    sd.setName(key);
+                    dfd.addServices(sd);
+                }
+                /**
+                 * Grabamos los datos
+                 */
+                try {
+                    DFService.modify(myAgent,dfd);
+                } catch (FIPAException e) {
+                    e.printStackTrace();
+                }
             }
         } );
     }
@@ -142,18 +136,17 @@ public class CompradorAgent extends Agent{
                 /**
                  * Si no supera el precio para la subasta del libro
                  */
-                /**
-                 * Hacer mañana -> coger el contenido del mensaje. Partirlo en dos. 1 parte libro, 2 parte precio actual
-                 * Comprobar con nuestro precio máximo
-                 */
-                int price = Integer.parseInt(msg.getContent());
-                if (libros.get(msg.getConversationId()) >= price) {
+                String m = msg.getContent();
+                String libro = m.split(" ")[0];
+                int precio = Integer.parseInt(m.split(" ")[1]);
+
+                if (libros.get(libro) >= precio) {
                     reply.setContent("acepto");
-                    System.out.println("Acepto " +price);
+                    System.out.println("acepto " + libro +" "+precio);
                 } else {
                     //Si no estamos interesados
-                    System.out.println("Deniego " +price);
-                    reply.setContent("deniego " + price);
+                    reply.setContent("deniego " + precio);
+                    System.out.println("deniego " + libro +" "+precio);
                 }
                 myAgent.send(reply);
             }

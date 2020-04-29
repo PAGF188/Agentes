@@ -19,13 +19,15 @@ import java.util.Map;
 
 public class VendedorAgent extends Agent{
 
-    /*Pareja libro-incremento*/
-    HashMap<String, Integer> libros;
+    /**
+     * ArrayList de subastas
+     */
+    ArrayList<Subasta> subastas;
 
     @Override
     protected void setup(){
-        libros = new HashMap<>();
-        libros.put("libro1",10);
+        subastas = new ArrayList<>();
+        subastas.add(new Subasta("libro1",10,5));
         addBehaviour(new VendedorAgent.Comportamiento());
     }
 
@@ -36,45 +38,52 @@ public class VendedorAgent extends Agent{
 
     private class Comportamiento extends Behaviour {
 
-        int fase=0;
-        boolean paramos=false;
-        //Esto sirve para 1, luego habrá que crear una clase subasta con todos los datos
-        private AID ganador;
+        /**
+         * Lista de eliminar subastas si terminaron
+         */
+        private ArrayList<Subasta> eliminar;
+
 
         @Override
         public void action() {
 
-            //Habrá un ArrayList de objeto subasta. Este tendrá el libro, precio actual, incremento, ganador,...ç
-            //Recorrer este array y para daca una hacer CFP a los clientes que están interesados. Para saber cuales
-            //son, preguntar enviando mensaje subscribe y esperar respuesta.
-            for (Map.Entry<String, Integer> entry : libros.entrySet()) {
+            eliminar = new ArrayList<>();
 
-                //Consultamos páginas amarillas de la subasta i
+            /**
+             * Recorremos todas las subastas activas.
+             */
+            for (Subasta aux : subastas) {
+
+                /**
+                 * Consultamos en las páginas amarillas, los clientes interesados en el libro de la subasta
+                 */
                 DFAgentDescription template = new DFAgentDescription();
                 ServiceDescription sd = new ServiceDescription();
                 sd.setType("subasta");
-                sd.setName(entry.getKey());
-                template.addServices(sd);
+                sd.setName(aux.getLibro());
                 template.addServices(sd);
                 try {
                     DFAgentDescription[] result = DFService.search(myAgent, template);
-                    ArrayList<AID> activos = new ArrayList<>();
+                    aux.reiniciar();
 
+                    /**
+                     * Añadimos los agentes a participantes, previamente reseteado
+                     */
                     for (int i = 0; i < result.length; ++i) {
-                        activos.add(result[i].getName());
+                        aux.add(result[i].getName());
                     }
 
                     /**
-                     * Enviamos CFP a todos los activos
+                     * Enviamos CFP a todos los activos, con contenido de mensaje precio y COnversatioID libro
                      */
                     int respuestas=0;
                     ACLMessage cfp = new ACLMessage(ACLMessage.CFP);
-                    for (int i = 0; i < activos.size(); ++i) {
-                        cfp.addReceiver(activos.get(i));
+                    for (int i = 0; i < aux.getParticipantes().size(); ++i) {
+                        cfp.addReceiver(aux.getParticipantes().get(i));
                         respuestas++;
                     }
-                    cfp.setContent(Integer.toString(entry.getValue()));
-                    cfp.setConversationId(entry.getKey());
+                    cfp.setContent(String.valueOf(aux.getPrecio()));
+                    cfp.setConversationId(aux.getLibro());
                     cfp.setReplyWith("cfp"+System.currentTimeMillis()); // Unique value
                     myAgent.send(cfp);
 
@@ -89,19 +98,19 @@ public class VendedorAgent extends Agent{
 
                             }
                             else{
-                                activos.remove(msg.getSender());
+                                aux.getParticipantes().remove(msg.getSender());
                             }
                         }
                         respuestas--;
                     }
 
                     /*Al acabar la ronda damos ganador a 1 participante que este activo*/
-                    if(activos.size()!=0)
-                     ganador=activos.get(0);
+                    if(aux.getParticipantes().size()!=0)
+                     aux.setGanador(aux.getParticipantes().get(0));
                      ACLMessage a = new ACLMessage(ACLMessage.ACCEPT_PROPOSAL);
-                     a.addReceiver(ganador);
-                     a.setContent("Aceptado " + entry.getValue());
-                     a.setConversationId(entry.getKey());
+                     a.addReceiver(aux.getGanador());
+                     a.setContent("Aceptado " + aux.getLibro());
+                     a.setConversationId(aux.getLibro());
                      a.setReplyWith("cfp"+System.currentTimeMillis()); // Unique value
                      myAgent.send(a);
 
@@ -111,12 +120,12 @@ public class VendedorAgent extends Agent{
                      */
 
                     ACLMessage d = new ACLMessage(ACLMessage.REJECT_PROPOSAL);
-                    for (int i = 0; i < activos.size(); ++i) {
-                        if(!activos.get(i).equals(ganador))
-                            d.addReceiver(activos.get(i));
+                    for (int i = 0; i < aux.getParticipantes().size(); ++i) {
+                        if(!aux.participantes.get(i).equals(aux.getGanador()))
+                            d.addReceiver(aux.getParticipantes().get(i));
                     }
-                    d.setContent("Rechazado " + entry.getValue());
-                    d.setConversationId(entry.getKey());
+                    d.setContent("Rechazado " + aux.getPrecio());
+                    d.setConversationId(aux.getLibro());
                     d.setReplyWith("cfp"+System.currentTimeMillis()); // Unique value
                     myAgent.send(d);
 
@@ -124,16 +133,16 @@ public class VendedorAgent extends Agent{
                      * criterio de parada
                      * 1 participante, 0 participantes
                      */
-                    if(activos.size()==1 || activos.size()==0){
-                        paramos=true;
-                        return;
+                    if(aux.getParticipantes().size()==1 || aux.getParticipantes().size()==0){
+                        aux.setFase(-1);
                     }
 
                     /**
                      * Paso final. Al acabar subasta
                      */
-                    if(paramos==true){
-
+                    if(aux.getFase()==-1){
+                        //añadir a la lista de eliminar subastas
+                        eliminar.add(aux);
                     }
 
                 }
@@ -146,16 +155,92 @@ public class VendedorAgent extends Agent{
                     e.printStackTrace();
                 }
 
+                //Incrementamos el precio
+                aux.incrementar();
             }
-            fase++;
-            //incrementamos precio:
-            libros.put("libro1",libros.get("libro1")+5);
 
+            /**
+             * Al acabar de recorrer todas las subastas, eliminamos aquellas que terminaron
+             */
+            subastas.removeAll(eliminar);
         }
 
         @Override
         public boolean done() {
-            return paramos;
+            if(subastas.size()==0){
+                return true;
+            }
+            else{
+                return false;
+            }
+        }
+    }
+
+
+    /**
+     * Clase interna auxiliar subasta
+     */
+
+    private class Subasta{
+
+        private String libro;
+        private int precio;
+        private int incremento;
+        private AID ganador;
+        private ArrayList<AID> participantes;
+        /**
+         * 0 inicial
+         * -1 termino
+         */
+        private int fase;
+
+        public Subasta(String libro, int precio, int incremento){
+            this.libro=libro;
+            this.precio=precio;
+            this.incremento=incremento;
+            participantes = new ArrayList<>();
+            fase=0;
+        }
+
+        public String getLibro(){
+            return this.libro;
+        }
+
+        public ArrayList<AID> getParticipantes() {
+            return participantes;
+        }
+
+        public int getPrecio() {
+            return precio;
+        }
+
+        public AID getGanador() {
+            return ganador;
+        }
+
+        public void add(AID a){
+            participantes.add(a);
+        }
+
+        public void setFase(int fase) {
+            this.fase = fase;
+        }
+
+        public int getFase() {
+            return fase;
+        }
+
+        public void incrementar(){
+            this.precio+=this.incremento;
+        }
+
+        public void setGanador(AID ganador) {
+            this.ganador = ganador;
+        }
+
+        public void reiniciar(){
+            participantes=null;
+            participantes = new ArrayList<>();
         }
     }
 }
