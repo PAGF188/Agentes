@@ -2,6 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 /**
  *
@@ -10,12 +11,13 @@ import java.awt.event.ActionListener;
 public class CompradorAgentGui extends javax.swing.JFrame {
 
     private CompradorAgent myAgent;
-
     private int incremento=20;
+    private ArrayList<Puja> pujas;
 
     public CompradorAgentGui(CompradorAgent a) {
 
         myAgent=a;
+        pujas = new ArrayList<>();
 
         initComponents();
         this.setLocationRelativeTo(null);
@@ -51,7 +53,7 @@ public class CompradorAgentGui extends javax.swing.JFrame {
                         JTextField estado = new JTextField();
                         estado.setText("En espera");
                         estado.setFont(new java.awt.Font("Cantarell", 1, 14));
-                        estado.setSize(200,30);
+                        estado.setSize(250,30);
                         estado.setLocation(1, incremento);
                         estado.setEnabled(false);
                         estado.setAutoscrolls(true);
@@ -77,12 +79,13 @@ public class CompradorAgentGui extends javax.swing.JFrame {
                         });
 
                         incremento+=40;
+                        Puja aux = new Puja(title,puja,estado,aceptar);
+                        pujas.add(aux);
                     }
                     else{
                         libro.setText("");
                         precio.setText("");
                         JOptionPane.showMessageDialog(CompradorAgentGui.this, title + " ya está registrado", "Error", JOptionPane.ERROR_MESSAGE);
-
                     }
                 }
                 catch (Exception e) {
@@ -91,6 +94,18 @@ public class CompradorAgentGui extends javax.swing.JFrame {
             }
         } );
 
+    }
+
+    /**
+     * Actualiza estados pujas
+     */
+    public void actualizarEstado(String libro,String estado){
+        for(Puja aux: pujas){
+            if(aux.getLibro().equals(libro)){
+                aux.getEstado().setText(estado);
+                this.repaint();
+            }
+        }
     }
 
     /**
@@ -269,4 +284,50 @@ public class CompradorAgentGui extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel4;
 
     // End of variables declaration
+
+    private class Puja{
+        private String libro;
+        private JTextField puja;
+        private JTextField estado;
+        private JButton aceptar;
+
+        public Puja(String libro, JTextField puja, JTextField estado, JButton aceptar) {
+            this.libro = libro;
+            this.puja = puja;
+            this.estado = estado;
+            this.aceptar = aceptar;
+        }
+
+        public String getLibro() {
+            return libro;
+        }
+
+        public JTextField getPuja() {
+            return puja;
+        }
+
+        public JTextField getEstado() {
+            return estado;
+        }
+
+        public JButton getAceptar() {
+            return aceptar;
+        }
+
+        public void setLibro(String libro) {
+            this.libro = libro;
+        }
+
+        public void setPuja(JTextField puja) {
+            this.puja = puja;
+        }
+
+        public void setEstado(JTextField estado) {
+            this.estado = estado;
+        }
+
+        public void setAceptar(JButton aceptar) {
+            this.aceptar = aceptar;
+        }
+    }
 }

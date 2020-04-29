@@ -193,10 +193,19 @@ public class CompradorAgent extends Agent{
                 if (libros.get(libro) >= precio) {
                     reply.setContent("acepto");
                     System.out.println(myAgent.getName() + " acepto " + libro +" "+precio);
+                    /**
+                     * Si acepto, muestro en la interfaz, que acepte y por cuanto va
+                     */
+                    myGui.actualizarEstado(libro,"Aceptado " + precio);
+
                 } else {
                     //Si no estamos interesados
                     reply.setContent("deniego " + precio);
                     System.out.println(myAgent.getName() + " deniego " + libro +" "+precio);
+                    /**
+                     *  No acepto, me quedo en x
+                     */
+                    myGui.actualizarEstado(libro,"Me quedo en:  " + libros.get(libro));
                 }
                 myAgent.send(reply);
             }
@@ -226,7 +235,8 @@ public class CompradorAgent extends Agent{
             ACLMessage msg = myAgent.receive(mt);
             //Si hay mensaje
             if(msg!=null){
-
+                System.out.println("Finalizada ganador: " + msg.getContent());
+                myGui.actualizarEstado(msg.getConversationId(),"Finalizada. Ganador " + msg.getContent().substring(0,4));
             }
             else{
                 block();
@@ -235,7 +245,7 @@ public class CompradorAgent extends Agent{
 
         @Override
         public boolean done() {
-            return true;
+            return false;
         }
     }
 
@@ -250,7 +260,8 @@ public class CompradorAgent extends Agent{
                 ACLMessage msg = myAgent.receive(mt);
                 //Si hay mensaje
                 if(msg!=null){
-
+                    System.out.println(myAgent.getName() + " dice: Has ganado, a comprar el libro");
+                    myGui.actualizarEstado(msg.getConversationId(), "Has ganado. A comprar el libro");
                 }
                 else{
                     block();
@@ -259,8 +270,7 @@ public class CompradorAgent extends Agent{
 
             @Override
             public boolean done() {
-                return true;
+                return false;
             }
         }
-
 }
