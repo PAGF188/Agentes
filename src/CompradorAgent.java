@@ -22,7 +22,7 @@ public class CompradorAgent extends Agent{
     /*Libros sobre los que pujo. Y están activos*/
     private HashMap<String, Integer> libros;
 
-    /* Libros totales */
+    /* Libros totales incluso en los que estás fuera*/
     private HashMap<String, Integer> todos;
 
     /*Interfaz gráfica*/
@@ -237,6 +237,12 @@ public class CompradorAgent extends Agent{
             if(msg!=null){
                 System.out.println("Finalizada ganador: " + msg.getContent());
                 myGui.actualizarEstado(msg.getConversationId(),"Finalizada. Ganador " + msg.getContent().substring(0,4));
+                myGui.terminar(msg.getConversationId());
+                /**
+                 * Eliminamos el libro de los hashmap
+                 */
+                libros.remove(msg.getConversationId());
+                //todos.remove(msg.getConversationId());
             }
             else{
                 block();

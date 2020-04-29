@@ -85,7 +85,7 @@ public class CompradorAgentGui extends javax.swing.JFrame {
                     else{
                         libro.setText("");
                         precio.setText("");
-                        JOptionPane.showMessageDialog(CompradorAgentGui.this, title + " ya está registrado", "Error", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(CompradorAgentGui.this, "La subasta de " + title + " ya existe", "Error", JOptionPane.ERROR_MESSAGE);
                     }
                 }
                 catch (Exception e) {
@@ -103,6 +103,16 @@ public class CompradorAgentGui extends javax.swing.JFrame {
         for(Puja aux: pujas){
             if(aux.getLibro().equals(libro)){
                 aux.getEstado().setText(estado);
+                this.repaint();
+            }
+        }
+    }
+
+    public void terminar(String libro){
+        for(Puja aux: pujas){
+            if(aux.getLibro().equals(libro)){
+                aux.getAceptar().setVisible(false);
+                aux.getEstado().setBackground(new Color(199, 35, 21));
                 this.repaint();
             }
         }
