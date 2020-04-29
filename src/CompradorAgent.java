@@ -38,6 +38,7 @@ public class CompradorAgent extends Agent{
 
         /**
          * Nos registramos en las páginas amarillas para que el vendedor nos pueda encontrar.
+         * Pero todavía sin indicar ningún servicio
          */
         DFAgentDescription dfd = new DFAgentDescription();
         dfd.setName(getAID());
@@ -57,7 +58,9 @@ public class CompradorAgent extends Agent{
 
     }
 
-    /*Limpieza antes de eliminación*/
+    /**
+     * Limpieza antes de desregistro
+     */
     @Override
     protected void takeDown() {
         //Nos des-registramos de las páginas amarillas. ¿Habrá muchas?
@@ -73,6 +76,7 @@ public class CompradorAgent extends Agent{
 
     /**
      * Para apuntarse a la subasta de este tipo.
+     * Añadir una nueva entrada en libros y modificar registro añadiendo tantos servicios como entradas
      * @param title
      * @param price
      */
@@ -114,9 +118,10 @@ public class CompradorAgent extends Agent{
      */
 
     /**
-     * Clase interna
-     * Usada por el comprador durante la fase de negociación
-     * Recibirá un mensaje procediente del vendedor con la cantidad actual de la subasta
+     * Clase interna.
+     * Usada por el comprador durante la fase de negociación.
+     * Recibirá un mensaje procediente del vendedor con la cantidad de dinero de la ronda actual
+     * El id de la conversación será el libro sobre el que se estña pujando
      * Responderá si puja o no.
      */
     private class Negociacion extends Behaviour {
@@ -125,7 +130,7 @@ public class CompradorAgent extends Agent{
         @Override
         public void action() {
             /**
-             * Definimos el formato del mensaje. En este caso uno de tipo CFP
+             * Definimos el formato del mensaje de entrada. En este caso uno de tipo CFP
              */
             MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.CFP);
             ACLMessage msg = myAgent.receive(mt);
@@ -136,9 +141,8 @@ public class CompradorAgent extends Agent{
                 /**
                  * Si no supera el precio para la subasta del libro
                  */
-                String m = msg.getContent();
-                String libro = m.split(" ")[0];
-                int precio = Integer.parseInt(m.split(" ")[1]);
+                String libro = msg.getConversationId();
+                int precio = Integer.parseInt(msg.getContent());
 
                 if (libros.get(libro) >= precio) {
                     reply.setContent("acepto");
