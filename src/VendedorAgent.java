@@ -143,6 +143,12 @@ public class VendedorAgent extends Agent{
                     if(aux.getFase()==-1){
                         //añadir a la lista de eliminar subastas
                         eliminar.add(aux);
+                        /**
+                         * Notificar ganador y reslutados
+                         */
+                    }
+                    else{
+                        aux.incrementar();
                     }
 
                 }
@@ -154,9 +160,6 @@ public class VendedorAgent extends Agent{
                 }catch(Exception e){
                     e.printStackTrace();
                 }
-
-                //Incrementamos el precio
-                aux.incrementar();
             }
 
             /**
