@@ -178,8 +178,12 @@ public class VendedorAgent extends Agent{
                      * criterio de parada
                      * 1 participante, 0 participantes
                      */
-                    if(aceptados.size()==1 || aceptados.size()==0){
+                    if(aceptados.size()==1){
                         aux.setFase(-1);
+                    }
+                    if(aceptados.size()==0){
+                        aux.setFase(-1);
+                        aux.decrementar();
                     }
 
                     /**
@@ -319,6 +323,10 @@ public class VendedorAgent extends Agent{
 
         public void incrementar(){
             this.precio+=this.incremento;
+        }
+
+        public void decrementar(){
+            this.precio-=this.incremento;
         }
 
         public void setGanador(AID ganador) {

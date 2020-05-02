@@ -22,6 +22,7 @@ public class CompradorAgentGui extends javax.swing.JFrame {
         initComponents();
         this.setLocationRelativeTo(null);
         this.setResizable(false);
+        this.setTitle(myAgent.getLocalName());
 
 
         /*Acción botón*/
