@@ -236,7 +236,7 @@ public class CompradorAgent extends Agent{
             //Si hay mensaje
             if(msg!=null){
                 System.out.println("Finalizada ganador: " + msg.getContent());
-                myGui.actualizarEstado(msg.getConversationId(),"Finalizada. Ganador " + msg.getContent().substring(0,4));
+                myGui.actualizarEstado(msg.getConversationId(),"Finalizada. Ganador " + msg.getContent());
                 myGui.terminar(msg.getConversationId());
                 /**
                  * Eliminamos el libro de los hashmap
@@ -266,8 +266,8 @@ public class CompradorAgent extends Agent{
                 ACLMessage msg = myAgent.receive(mt);
                 //Si hay mensaje
                 if(msg!=null){
-                    System.out.println(myAgent.getName() + " dice: Has ganado, a comprar el libro");
-                    myGui.actualizarEstado(msg.getConversationId(), "Has ganado. A comprar el libro");
+                    System.out.println(myAgent.getName() + " dice: Has ganado, a comprar el libro. Precio: " + Integer.parseInt(msg.getContent()));
+                    myGui.actualizarEstado(msg.getConversationId(), "Ganaste. Compra el libro por: " + Integer.parseInt(msg.getContent()));
                 }
                 else{
                     block();

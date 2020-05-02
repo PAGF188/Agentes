@@ -152,7 +152,10 @@ public class VendedorAgent extends Agent{
                         myAgent.send(a);
                         System.out.println("Mensaje aceptaPropose envíado a " + aux.getGanador().getName());
 
-
+                        /**
+                         * Actualizamos IG con ganador
+                         */
+                        myGui.actualizarGanador(aux.getLibro(),aux.getGanador().getLocalName());
 
                         /**
                          * mensajes de rechazo al resto de participantes activos
@@ -196,7 +199,7 @@ public class VendedorAgent extends Agent{
                         for (int i = 0; i < aux.getParticipantes().size(); ++i) {
                             inform.addReceiver(aux.getParticipantes().get(i));
                         }
-                        inform.setContent(aux.getGanador().getName());
+                        inform.setContent(aux.getGanador().getLocalName() + " por " + aux.getPrecio());
                         inform.setConversationId(aux.getLibro());
                         myAgent.send(inform);
 
@@ -205,12 +208,19 @@ public class VendedorAgent extends Agent{
                          */
                         ACLMessage compra = new ACLMessage(ACLMessage.REQUEST);
                         compra.addReceiver(aux.getGanador());
-                        compra.setContent("comprar");
+                        compra.setContent(String.valueOf(aux.getPrecio()));
                         compra.setConversationId(aux.getLibro());
                         myAgent.send(compra);
+
+                        /**
+                         * Actualizar interfaz gráfica
+                         */
+                        myGui.actualizarEstado(aux.getLibro(),"Finalizada por " + aux.getPrecio() + ". Ganador: ");
+                        myGui.terminar(aux.getLibro());
                     }
                     else{
                         aux.incrementar();
+                        myGui.actualizarEstado(aux.getLibro(),"En curso: " + aux.getPrecio());
                     }
 
                 }

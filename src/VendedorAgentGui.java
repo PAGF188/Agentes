@@ -42,7 +42,7 @@ public class VendedorAgentGui extends javax.swing.JFrame {
                          * Colocamos los campos de la subasta
                          */
                         JTextField puja = new JTextField();
-                        puja.setText(title + " " + price);
+                        puja.setText(title);
                         puja.setFont(new java.awt.Font("Cantarell", 1, 14));
                         puja.setSize(80,30);
                         puja.setLocation(5, incrementoGrafico);
@@ -53,7 +53,7 @@ public class VendedorAgentGui extends javax.swing.JFrame {
                         jPanel2.add(puja);
 
                         JTextField estado = new JTextField();
-                        estado.setText("En espera");
+                        estado.setText("Iniciada: " + price);
                         estado.setFont(new java.awt.Font("Cantarell", 1, 14));
                         estado.setSize(250,30);
                         estado.setLocation(1, incrementoGrafico);
@@ -63,8 +63,20 @@ public class VendedorAgentGui extends javax.swing.JFrame {
                         estado.setForeground(new java.awt.Color(0, 0, 0));
                         jPanel3.add(estado);
 
+                        JTextField ganador = new JTextField();
+                        ganador.setText("");
+                        ganador.setFont(new java.awt.Font("Cantarell", 1, 14));
+                        ganador.setSize(60,30);
+                        ganador.setLocation(1, incrementoGrafico);
+                        ganador.setEnabled(false);
+                        ganador.setAutoscrolls(true);
+                        ganador.setHorizontalAlignment(javax.swing.JTextField.CENTER);
+                        ganador.setForeground(new java.awt.Color(0, 0, 0));
+                        jPanel4.add(ganador);
+                        jPanel4.repaint();
+
                         incrementoGrafico+=40;
-                        Puja aux = new Puja(title,puja,estado);
+                        Puja aux = new Puja(title,puja,estado,ganador);
                         pujas.add(aux);
                     }
                     else{
@@ -87,6 +99,25 @@ public class VendedorAgentGui extends javax.swing.JFrame {
         for(Puja aux: pujas){
             if(aux.getLibro().equals(libro)){
                 aux.getEstado().setText(estado);
+                this.repaint();
+            }
+        }
+    }
+
+    public void terminar(String libro){
+        for(Puja aux: pujas){
+            if(aux.getLibro().equals(libro)){
+                aux.getEstado().setBackground(new Color(199, 35, 21));
+                aux.getGanador().setBackground(new Color(188, 167, 65));
+                this.repaint();
+            }
+        }
+    }
+
+    public void actualizarGanador(String libro,String ganador){
+        for(Puja aux: pujas){
+            if(aux.getLibro().equals(libro)){
+                aux.getGanador().setText(ganador);
                 this.repaint();
             }
         }
@@ -271,11 +302,13 @@ public class VendedorAgentGui extends javax.swing.JFrame {
         private String libro;
         private JTextField puja;
         private JTextField estado;
+        private JTextField ganador;
 
-        public Puja(String libro, JTextField puja, JTextField estado) {
+        public Puja(String libro, JTextField puja, JTextField estado, JTextField ganador) {
             this.libro = libro;
             this.puja = puja;
             this.estado = estado;
+            this.ganador = ganador;
         }
 
         public String getLibro() {
@@ -290,10 +323,15 @@ public class VendedorAgentGui extends javax.swing.JFrame {
             return estado;
         }
 
+        public JTextField getGanador() {
+            return ganador;
+        }
 
         public void setLibro(String libro) {
             this.libro = libro;
         }
+
+        public void setGanador(JTextField ganador){this.ganador = ganador;}
 
         public void setPuja(JTextField puja) {
             this.puja = puja;
