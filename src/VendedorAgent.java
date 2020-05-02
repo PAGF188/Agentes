@@ -186,37 +186,48 @@ public class VendedorAgent extends Agent{
                      * Paso final. Al acabar subasta
                      */
                     if(aux.getFase()==-1){
+
                         /**
-                         * Para apreciar mejor fin de subasta.
+                         * COmprobación de seguridad -> que haya ganador
+                         * En caso contrario, no se celebro ninguna ronda
                          */
-                        Thread.sleep(1000);
-                        //añadir a la lista de eliminar subastas
-                        eliminar.add(aux);
-                        /**
-                         * Notificar a todos los participantes de que termino ACL.INFORM, y al ganador envíar ACL.REQUEST
-                         */
-                        ACLMessage inform = new ACLMessage(ACLMessage.INFORM);
-                        for (int i = 0; i < aux.getParticipantes().size(); ++i) {
-                            inform.addReceiver(aux.getParticipantes().get(i));
+                        if(aux.getGanador()==null){
+                            myGui.actualizarEstado(aux.getLibro(),"Cancelada");
+                            myGui.terminar(aux.getLibro());
                         }
-                        inform.setContent(aux.getGanador().getLocalName() + " por " + aux.getPrecio());
-                        inform.setConversationId(aux.getLibro());
-                        myAgent.send(inform);
+                        else{
+                            /**
+                             * Para apreciar mejor fin de subasta.
+                             */
+                            Thread.sleep(1000);
+                            //añadir a la lista de eliminar subastas
+                            eliminar.add(aux);
+                            /**
+                             * Notificar a todos los participantes de que termino ACL.INFORM, y al ganador envíar ACL.REQUEST
+                             */
+                            ACLMessage inform = new ACLMessage(ACLMessage.INFORM);
+                            for (int i = 0; i < aux.getParticipantes().size(); ++i) {
+                                inform.addReceiver(aux.getParticipantes().get(i));
+                            }
+                            inform.setContent(aux.getGanador().getLocalName() + " por " + aux.getPrecio());
+                            inform.setConversationId(aux.getLibro());
+                            myAgent.send(inform);
 
-                        /**
-                         * Notificar al ganador que proceda a la compra
-                         */
-                        ACLMessage compra = new ACLMessage(ACLMessage.REQUEST);
-                        compra.addReceiver(aux.getGanador());
-                        compra.setContent(String.valueOf(aux.getPrecio()));
-                        compra.setConversationId(aux.getLibro());
-                        myAgent.send(compra);
+                            /**
+                             * Notificar al ganador que proceda a la compra
+                             */
+                            ACLMessage compra = new ACLMessage(ACLMessage.REQUEST);
+                            compra.addReceiver(aux.getGanador());
+                            compra.setContent(String.valueOf(aux.getPrecio()));
+                            compra.setConversationId(aux.getLibro());
+                            myAgent.send(compra);
 
-                        /**
-                         * Actualizar interfaz gráfica
-                         */
-                        myGui.actualizarEstado(aux.getLibro(),"Finalizada por " + aux.getPrecio() + ". Ganador: ");
-                        myGui.terminar(aux.getLibro());
+                            /**
+                             * Actualizar interfaz gráfica
+                             */
+                            myGui.actualizarEstado(aux.getLibro(),"Finalizada por " + aux.getPrecio() + ". Ganador: ");
+                            myGui.terminar(aux.getLibro());
+                        }
                     }
                     else{
                         aux.incrementar();
