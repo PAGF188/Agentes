@@ -190,7 +190,7 @@ public class VendedorAgent extends Agent{
                      * Paso final. Al acabar subasta
                      */
                     if(aux.getFase()==-1){
-
+                        eliminar.add(aux);
                         /**
                          * COmprobación de seguridad -> que haya ganador
                          * En caso contrario, no se celebro ninguna ronda
@@ -204,8 +204,6 @@ public class VendedorAgent extends Agent{
                              * Para apreciar mejor fin de subasta.
                              */
                             Thread.sleep(1000);
-                            //añadir a la lista de eliminar subastas
-                            eliminar.add(aux);
                             /**
                              * Notificar a todos los participantes de que termino ACL.INFORM, y al ganador envíar ACL.REQUEST
                              */
