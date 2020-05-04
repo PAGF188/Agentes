@@ -66,7 +66,10 @@ public class CompradorAgent extends Agent{
         addBehaviour(new FinalSubasta());
         //Comportamineto para compra de libro
         addBehaviour(new Venta());
-
+        //Actualizar perdedor ronda
+        addBehaviour(new Perdiendo());
+        //Actualizar ganador ronda
+        addBehaviour(new Ganando());
     }
 
     /**
@@ -172,7 +175,6 @@ public class CompradorAgent extends Agent{
      */
     private class Negociacion extends Behaviour {
 
-
         @Override
         public void action() {
             /**
@@ -217,6 +219,54 @@ public class CompradorAgent extends Agent{
         /**
          * Cambiar por return libros.size()==0
          */
+        @Override
+        public boolean done() {
+            return false;
+        }
+    }
+
+    /**
+     * Clase interna para informar del final de ronda, RejectProposal
+     */
+    private class Perdiendo extends Behaviour{
+
+        @Override
+        public void action() {
+            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.REJECT_PROPOSAL);
+            ACLMessage msg = myAgent.receive(mt);
+            //Si hay mensaje
+            if(msg!=null){
+                myGui.actualizarEstadoPerdedor(msg.getConversationId());
+            }
+            else{
+                block();
+            }
+        }
+
+        @Override
+        public boolean done() {
+            return false;
+        }
+    }
+
+    /**
+     * Clase interna para informar del final de ronda, AceptProposal
+     */
+    private class Ganando extends Behaviour{
+
+        @Override
+        public void action() {
+            MessageTemplate mt = MessageTemplate.MatchPerformative(ACLMessage.ACCEPT_PROPOSAL);
+            ACLMessage msg = myAgent.receive(mt);
+            //Si hay mensaje
+            if(msg!=null){
+                myGui.actualizarEstadoGanador(msg.getConversationId());
+            }
+            else{
+                block();
+            }
+        }
+
         @Override
         public boolean done() {
             return false;

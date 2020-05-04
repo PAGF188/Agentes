@@ -108,6 +108,24 @@ public class CompradorAgentGui extends javax.swing.JFrame {
         }
     }
 
+    public void actualizarEstadoPerdedor(String libro){
+        for(Puja aux: pujas){
+            if(aux.getLibro().equals(libro)){
+                aux.getEstado().setText(aux.getEstado().getText() + ". Perdedor de ronda");
+                this.repaint();
+            }
+        }
+    }
+
+    public void actualizarEstadoGanador(String libro){
+        for(Puja aux: pujas){
+            if(aux.getLibro().equals(libro)){
+                aux.getEstado().setText(aux.getEstado().getText() + ". Ganador de ronda");
+                this.repaint();
+            }
+        }
+    }
+
     public void terminar(String libro){
         for(Puja aux: pujas){
             if(aux.getLibro().equals(libro)){
